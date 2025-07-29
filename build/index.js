@@ -13,31 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const server_1 = require("@apollo/server");
 const express5_1 = require("@as-integrations/express5");
 const cors_1 = __importDefault(require("cors"));
+const graphql_1 = __importDefault(require("./graphql"));
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     const PORT = process.env.PORT || 4000;
     const app = (0, express_1.default)();
-    const gqlServer = new server_1.ApolloServer({
-        typeDefs: `
-      type Query {
-        hello: String!
-      }
-    `,
-        resolvers: {
-            Query: {
-                hello: () => `hello world`,
-            },
-        },
-    });
-    yield gqlServer.start();
-    // Apply GraphQL middleware with required middleware inline
-    app.use('/graphql', (0, cors_1.default)(), express_1.default.json(), (0, express5_1.expressMiddleware)(gqlServer));
+    app.use('/graphql', (0, cors_1.default)(), express_1.default.json(), (0, express5_1.expressMiddleware)(yield (0, graphql_1.default)()));
     app.listen(PORT, () => {
         console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
     });
 });
-startServer().catch(error => {
+startServer().catch((error) => {
     console.error('Error starting server:', error);
 });
